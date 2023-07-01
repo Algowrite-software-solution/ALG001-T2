@@ -1,5 +1,11 @@
 <?php
 
+## developer - janith nirmal (02-07-2023)
+## validatable types 
+## --  id_int
+## --  email
+## --  text_255
+
 final class data_validator
 {
 
@@ -98,12 +104,12 @@ final class data_validator
         if (empty($text)) {
             $this->errorObject->$key =  "Empty text for " . $key; // Text is empty
         }
-        
+
         // Validate the text length
         $minLength = 1; // Minimum allowed length
         $maxLength = 255; // Maximum allowed length
         $textLength = strlen($text);
-        
+
         if ($textLength < $minLength || $textLength > $maxLength) {
             $this->errorObject->$key =  "Invalid text length for " . $key; // Text is empty
         }
