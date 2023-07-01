@@ -1,5 +1,5 @@
 const data = {
-  id_int: [
+  validatable_type1: [
     {
       datakey: "data1",
       value: "12423",
@@ -10,11 +10,11 @@ const data = {
     },
     {
       datakey: "data3",
-      value: "janith",
+      value: "text",
     },
   ],
-  email: [
-    { datakey: "myEmail", value: "rmjanithnirmal@gmail.com" },
+  validatable_type2: [
+    { datakey: "myEmail", value: "myemail@gmail.com" },
     { datakey: "yourEmail", value: "not an email" },
   ],
 };
