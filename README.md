@@ -6,9 +6,9 @@ this is the serverside aplication reposotory.
 
 
 ## Developer List
-> Risinu Pesara
-> Nisal Uthsara
-> Kavishka Dilshan
-> Shenal Rayantha
-> Kavindu Sasanka
-> Viraj (inactive)
+- Risinu Pesara
+- Nisal Uthsara
+- Kavishka Dilshan
+- Shenal Rayantha
+- Kavindu Sasanka
+- Viraj (inactive)
