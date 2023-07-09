@@ -11,7 +11,7 @@ class database_driver
         $host = 'localhost';//update your own
         $user = 'root';//update your own
         $password = 'KaviskaDilshan12#$'; //update your own
-        $database = 'test';//update your own
+        $database = 'alg001_db';//update your own
     
         // Connect to the database using mysqli
         $this->connection = new mysqli($host, $user, $password, $database);
