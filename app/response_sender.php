@@ -5,13 +5,14 @@ class response_sender {
     public static function sendJson ($responseObject){
 
         echo(json_encode($responseObject));
+        exit();
 
 
     }
 
 }
 
-response_sender::sendJson($responseObject);
+
 
 ?>
 

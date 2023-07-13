@@ -5,51 +5,92 @@ require("../app/passwordEncryptor.php");
 require("../app/user_access_updater.php");
 require("../app/response_sender.php");
 
-$database_driver = new database_driver();
 
-if (isset($_GET['email'], $_GET['password'])) {
-    $email = $_GET['email'];
-    $password = $_GET['password'];
+$responseObject = new stdClass();
+$responseObject->status = "failed";
 
-    // Example data to validate
-    $data = [
-        'email' => [
-            (object)['datakey' => 'email', 'value' => $email],
-            // Add more email objects to validate
-        ],
-    ];
 
-    // Create an instance of data_validator
-    $validator = new data_validator($data);
-
-    // Validate the data
-    $errors = $validator->validate();
-
-    // Check for email validation errors
-    if (!empty($errors->email)) {
-        echo "Email validation failed for 'email': " . $errors->email;
-    } else {
-        echo "Email validation passed for 'email'.";
-        // Prepare the query to select the hash and salt columns based on the email
-        $query1 = "SELECT password_hash FROM user WHERE email = ?";
-        $query2 = "SELECT password_salt FROM user WHERE email = ?";
-
-        // Prepare and execute the query using the provided email as a parameter
-        $hash = $database_driver->execute_query($query1, 's', [$email]);
-        $salt = $database_driver->execute_query($query2, 's', [$email]);
-
-        // Verify the password
-        if (PasswordHashVerifier::isValid($password, $salt, $hash)) {
-            // Password is valid, perform signin actions
-            echo "Signin successful!";
-            
-            $userAccess = new UseerAccess();
-            $query3 = "SELECT UID FROM user WHERE email = ?";
-            $UID = $database_driver->execute_query($query3, 's', [$email]);
-            $userAccess->login($UID);
-        } else {
-            // Password is invalid
-            echo "Invalid username or password.";
-        }
-    }
+//handle the request
+if (!isset($_GET['email']) || !isset($_GET['password'])) {
+    $responseObject->error = "invalid request";
+    response_sender::sendJson($responseObject);
 }
+
+
+//gather inputs
+$email=trim($_GET['email']);
+$password=trim($_GET['password']);
+
+
+//validate inputs
+if (empty($email) || empty($password)) {
+    $responseObject->error = "empty input values";
+    response_sender::sendJson($responseObject);
+}
+$validateReadyObject=new stdClass();
+$emailObject=new stdClass();
+$emailObject->datakey='email1';
+$emailObject->value=$email;
+
+
+$validateReadyObject->email=array($emailObject);
+
+$data_validator=new data_validator($validateReadyObject);
+//echo(json_encode($data_validator->validate()));
+
+$emailvalidate=$data_validator->validate();
+if(!$emailvalidate->email1==null){
+    $responseObject->error="email ias not correct format";
+    response_sender::sendJson($responseObject);
+
+};
+
+
+
+ 
+
+
+
+
+
+//gather data from database
+$database_driver=new database_driver();
+$query = "SELECT password_hash, password_salt,UID FROM user WHERE email = ?";
+$stmt = $database_driver->execute_query($query, 's', [$email]);
+
+// Bind variables to the result
+$stmt->bind_result($passwordHash, $passwordSalt,$userid);
+
+// Fetch the result
+$stmt->fetch();
+
+if(empty($passwordHash)){
+    $responseObject->error="email not match to database";
+    response_sender::sendJson($responseObject);
+}
+
+// Close the statement
+$stmt->close();
+
+
+//check acess by comparing
+if(!PasswordHashVerifier::isValid($password,$passwordSalt,$passwordHash)){
+    $responseObject->error="incorrect password";
+    response_sender::sendJson($responseObject);
+};
+
+
+//create a session
+$UseerAccess=new UseerAccess();
+$UseerAccess->login($userid);
+
+
+
+
+//send response
+$responseObject->status = "success";
+response_sender::sendJson($responseObject);
+
+
+
+
