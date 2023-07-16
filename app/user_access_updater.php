@@ -3,7 +3,7 @@
 class UseerAccess
 {
     private $sessionVariable = "alg001_user";
-
+    
     public function isLoggedIn()
     {
         return isset($_SESSION[$this->sessionVariable]);
@@ -27,6 +27,3 @@ class UseerAccess
         return null;
     }
 }
-
-
-?>
