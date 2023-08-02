@@ -6,11 +6,14 @@ require("../app/user_access_updater.php");
 require("../app/response_sender.php");
 
 
+// response object
 $responseObject = new stdClass();
 $responseObject->status = "failed";
 
 
 //handle the request
+
+
 if (!isset($_GET['email']) || !isset($_GET['password'])) {
     $responseObject->error = "invalid request";
     response_sender::sendJson($responseObject);
