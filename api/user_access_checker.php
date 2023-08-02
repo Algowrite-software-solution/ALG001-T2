@@ -5,49 +5,81 @@ require("../app/passwordEncryptor.php");
 require("../app/user_access_updater.php");
 require("../app/response_sender.php");
 
-$useerAccess = new UseerAccess();
-$response = new response_sender();
 
-if (isset($_GET['email'], $_GET['password'])) {
-    $email = $_GET['email'];
-    $password = $_GET['password'];
+$responseObject = new stdClass();
+$responseObject->status = "failed";
 
-    $data = [
-        "email" => [
-            (object) [
-                "datakey" => "email",
-                "value" => $email
-            ]
-        ]
-    ];
 
-    $validator = new data_validator($data);
-    $errors = $validator->validate();
-
-    if ($errors->email) {
-        $response->sendJson("incorrect");
-    } else {
-        $database = new database_driver();
-        $userExists = $database->query("SELECT * FROM user WHERE email='$email'")->num_rows;
-
-        if ($userExists) {
-            $user = $database->query("SELECT * FROM user WHERE email='$email'")->fetch_assoc();
-            $hash = $user['password_hash'];
-            $salt = $user['salt'];
-
-            if (PasswordHashVerifier::isValid($password, $salt, $hash)) {
-                $useerAccess->login($user['UID']);
-                $response->sendJson("success");
-            } else {
-                $response->sendJson("incorrect");
-            }
-        } else {
-            $response->sendJson("incorrect");
-        }
-    }
-} else {
-    $response->sendJson("incorrect");
+//handle the request
+if (!isset($_GET['email']) || !isset($_GET['password'])) {
+    $responseObject->error = "invalid request";
+    response_sender::sendJson($responseObject);
 }
 
 
-?>
+//gather inputs
+$email = trim($_GET['email']);
+$password = trim($_GET['password']);
+
+
+//validate inputs
+if (empty($email) || empty($password)) {
+    $responseObject->error = "empty input values";
+    response_sender::sendJson($responseObject);
+}
+$validateReadyObject = new stdClass();
+$emailObject = new stdClass();
+$emailObject->datakey = 'email1';
+$emailObject->value = $email;
+
+
+$validateReadyObject->email = array($emailObject);
+
+$dataValidator = new data_validator($validateReadyObject);
+//echo(json_encode($data_validator->validate()));
+
+$validationErrors = $dataValidator->validate();
+if (!$validationErrors->email1 == null) {
+    $responseObject->error = "email ias not correct format";
+    response_sender::sendJson($responseObject);
+};
+
+
+
+//gather data from database
+$database_driver = new database_driver();
+$query = "SELECT `password_hash`, `password_salt`,`UID` FROM `user` WHERE email = ?";
+$stmt = $database_driver->execute_query($query, 's', [$email]);
+
+// Bind variables to the result
+$stmt->bind_result($passwordHash, $passwordSalt, $userid);
+
+// Fetch the result
+$stmt->fetch();
+
+if (empty($userid)) {
+    $responseObject->error = "email not match to database";
+    response_sender::sendJson($responseObject);
+}
+
+// Close the statement
+$stmt->close();
+
+
+//check acess by comparing
+if (!PasswordHashVerifier::isValid($password, $passwordSalt, $passwordHash)) {
+    $responseObject->error = "incorrect password";
+    response_sender::sendJson($responseObject);
+};
+
+
+//create a session
+$UseerAccess = new UseerAccess();
+$UseerAccess->login($userid);
+
+
+
+
+//send response
+$responseObject->status = "success";
+response_sender::sendJson($responseObject);
