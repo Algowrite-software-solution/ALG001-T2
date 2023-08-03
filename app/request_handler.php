@@ -4,7 +4,7 @@ class request_handler
 {
     // validate the request methods
     // post
-    private static function isPostMethod()
+    public static function isPostMethod()
     {
         return ($_SERVER["REQUEST_METHOD"] === "POST") ? true : false;
     }
@@ -20,11 +20,8 @@ class request_handler
     {
         if (self::isPostMethod()) {
             foreach ($variables as $value) {
-                $variableName = $_POST[$value];
-                if (!isset($variableName) || empty($variableName)) {
+                if (!isset($_POST[$value]) || empty(trim($_POST[$value]))) {
                     return "invalid request method parameters";
-                } else {
-                    return false;
                 }
             }
         } else {
@@ -35,19 +32,13 @@ class request_handler
     public static function getMethodHas(...$variables)
     {
         if (self::isGetMethod()) {
-            $error = "";
             foreach ($variables as $value) {
-                if (!isset($_POST[$value]) || empty($_POST[$value])) {
-                    $error  = "invalid request method parameters";
-                } else {
-                    $error = true;
+                if (!isset($_GET[$value]) || empty(trim($_GET[$value]))) {
+                    return "invalid request method parameters";
                 }
             }
-            return $error;
         } else {
             return "invalid method";
         }
     }
 }
-
-echo request_handler::getMethodHas("name", "age");
