@@ -10,7 +10,8 @@ class database_driver
     {
         $host = 'localhost';//update your own
         $user = 'root';//update your own
-        $password = 'KaviskaDilshan12#$'; //update your own
+        //$password = 'KaviskaDilshan12#$'; //kavishka
+        $password = ''; //shenal
         $database = 'alg001_db';//update your own
     
         // Connect to the database using mysqli
