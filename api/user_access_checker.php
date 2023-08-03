@@ -4,22 +4,23 @@ require("../app/database_driver.php");
 require("../app/passwordEncryptor.php");
 require("../app/user_access_updater.php");
 require("../app/response_sender.php");
+require("../app/request_handler.php");
 
 
 $responseObject = new stdClass();
 $responseObject->status = "failed";
 
 
-//handle the request
-if (!isset($_GET['email']) || !isset($_GET['password'])) {
+if (request_handler::postMethodHasError("email", "password")) {
     $responseObject->error = "invalid request";
     response_sender::sendJson($responseObject);
 }
 
 
+
 //gather inputs
-$email = trim($_GET['email']);
-$password = trim($_GET['password']);
+$email = trim($_POST['email']);
+$password = trim($_POST['password']);
 
 
 //validate inputs
@@ -27,22 +28,23 @@ if (empty($email) || empty($password)) {
     $responseObject->error = "empty input values";
     response_sender::sendJson($responseObject);
 }
-$validateReadyObject = new stdClass();
-$emailObject = new stdClass();
-$emailObject->datakey = 'email1';
-$emailObject->value = $email;
 
-
-$validateReadyObject->email = array($emailObject);
+$validateReadyObject = (object) [
+    'email' => [
+        (object) ['datakey' => 'email', 'value' => $email],
+    ],
+];
 
 $dataValidator = new data_validator($validateReadyObject);
-//echo(json_encode($data_validator->validate()));
-
 $validationErrors = $dataValidator->validate();
-if (!$validationErrors->email1 == null) {
-    $responseObject->error = "email ias not correct format";
-    response_sender::sendJson($responseObject);
-};
+foreach ($validationErrors as $key => $value) {
+    if ($value) {
+        $responseObject->error = "email ias not correct format";
+        response_sender::sendJson($responseObject);
+    }
+}
+
+
 
 
 
@@ -62,8 +64,6 @@ if (empty($userid)) {
     response_sender::sendJson($responseObject);
 }
 
-// Close the statement
-$stmt->close();
 
 
 //check acess by comparing

@@ -4,19 +4,19 @@ class request_handler
 {
     // validate the request methods
     // post
-    public static function isPostMethod()
+    private static function isPostMethod()
     {
         return ($_SERVER["REQUEST_METHOD"] === "POST") ? true : false;
     }
 
     // get
-    public static function isGetMethod()
+    private static function isGetMethod()
     {
         return ($_SERVER["REQUEST_METHOD"] === "GET") ? true : false;
     }
 
     // check for the existant of the given request method parameters
-    public static function postMethodHas(...$variables)
+    public static function postMethodHasError(...$variables)
     {
         if (self::isPostMethod()) {
             foreach ($variables as $value) {
@@ -29,7 +29,7 @@ class request_handler
         }
     }
 
-    public static function getMethodHas(...$variables)
+    public static function getMethodHasError(...$variables)
     {
         if (self::isGetMethod()) {
             foreach ($variables as $value) {

@@ -2,18 +2,18 @@
 class database_driver
 
 {
-   
+
     private $connection;
 
     // Constructor that takes in connection details and establishes a connection to the database
     public function __construct()
     {
-        $host = 'localhost';//update your own
-        $user = 'root';//update your own
-        $password = 'KaviskaDilshan12#$'; //update your own
-        $password = 'KaviskaDilshan12#$'; //update your own
-        $database = 'test';//update your own
-    
+        $host = 'localhost';
+        $user = 'root';
+        // $password = 'KaviskaDilshan12#$'; // kaviska
+        $password = 'JanithNirmal12#$'; // janith
+        $database = 'alg001_db';
+
         // Connect to the database using mysqli
         $this->connection = new mysqli($host, $user, $password, $database);
 
@@ -28,17 +28,17 @@ class database_driver
     {
         // Prepare the statement using mysqli
         $stmt = $this->connection->prepare($query);
-    
+
         // Bind the parameters to the statement using mysqli
         $stmt->bind_param($types, ...$params);
-    
+
         // Execute the statement
         $stmt->execute();
-    
+
         // Return the statement object
         return $stmt;
     }
-    
+
 
     // Function that executes a query and returns the result
     public function query($query)
